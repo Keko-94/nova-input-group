@@ -1,25 +1,27 @@
 <template>
   <DefaultField
-    :field="field"
+    :field="currentField"
     :errors="errors"
     :show-help-text="showHelpText"
     :full-width-content="fullWidthContent"
   >
     <template #field>
-        <div class="flex flex-wrap items-stretch w-full mb-4 relative">
+        <div class="flex items-stretch w-full mb-4 relative">
             <div class="flex -mr-px w-auto" v-if="hasContentBefore">
                 <span 
                   class="w-full flex px-3 bg-40 form-input-bordered rounded-l items-center border-r-0"
                   :class="prependExtraClasses"
                 >
-                  <display-as :iconPosition="field.prependIconPosition" :icon="field.prependIcon" :value="field.prepend" :html="field.asHtml" />
+                  <display-as :iconPosition="currentField.prependIconPosition" :icon="currentField.prependIcon" :value="currentField.prepend" :html="currentField.asHtml" />
                  </span> 
             </div>
             <input
-                :id="field.name"
+                :id="currentField.uniqueKey"
+                :dusk="field.attribute"
+                :name="field.name"
                 type="text"
                 :class="classObject"
-                :placeholder="currentField.placeholder || field.name"
+                :placeholder="currentField.placeholder || currentField.name"
                 v-model="value"
             />
             <div class="flex -mr-px w-auto" v-if="hasContentAfter">
@@ -27,7 +29,7 @@
                   class="w-full flex px-3 bg-40 form-input-bordered rounded-r items-center border-l-0"
                   :class="appendExtraClasses"
                 >
-                  <display-as :iconPosition="field.appendIconPosition" :icon="field.appendIcon" :value="field.append" :html="field.asHtml" />
+                  <display-as :iconPosition="currentField.appendIconPosition" :icon="currentField.appendIcon" :value="currentField.append" :html="currentField.asHtml" />
                </span> 
             </div>
             
@@ -37,29 +39,29 @@
 </template>
 
 <script>
-import { FormField, HandlesValidationErrors } from 'laravel-nova'
+import { DependentFormField, HandlesValidationErrors } from 'laravel-nova'
 import DisplayAs from './DisplayAs.vue'
 
 export default {
-  mixins: [FormField, HandlesValidationErrors],
+  mixins: [DependentFormField, HandlesValidationErrors],
   components: {
     DisplayAs,
   },
   props: ['resourceName', 'resourceId', 'field'],
   computed: {
     prependExtraClasses() {
-        let extraClasses = this.field.prependExtraClasses || 'bg-gray-100';
+        let extraClasses = this.currentField.prependExtraClasses || 'bg-gray-100';
         return extraClasses;
     },
     appendExtraClasses() {
-      let extraClasses = this.field.appendExtraClasses || 'bg-gray-100';
+      let extraClasses = this.currentField.appendExtraClasses || 'bg-gray-100';
         return extraClasses;
     },
     hasContentBefore() {
-      return this.field.prependIcon || this.field.prepend
+      return this.currentField.prependIcon || this.currentField.prepend
     },
     hasContentAfter() {
-      return this.field.appendIcon || this.field.append
+      return this.currentField.appendIcon || this.currentField.append
     },
     classObject() {
       let inputClass = 'form-control form-input form-input-bordered';
@@ -84,14 +86,14 @@ export default {
      * Set the initial, internal value for the field.
      */
     setInitialValue() {
-      this.value = this.field.value || ''
+      this.value = this.currentField.value || ''
     },
 
     /**
      * Fill the given FormData object with the field's internal value.
      */
     fill(formData) {
-      formData.append(this.field.attribute, this.value || '')
+      formData.append(this.currentField.attribute, this.value || '')
     },
   },
 }
