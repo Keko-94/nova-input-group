@@ -3,9 +3,12 @@
 namespace EomPlus\NovaInputGroup;
 
 use Laravel\Nova\Fields\Field;
+use Laravel\Nova\Fields\SupportsDependentFields;
 
 class InputGroup extends Field
 {
+    use SupportsDependentFields;
+
     protected $position = 'before';
 
     /**
